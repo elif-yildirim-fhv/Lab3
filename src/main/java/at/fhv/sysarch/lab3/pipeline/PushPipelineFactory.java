@@ -7,6 +7,8 @@ import at.fhv.sysarch.lab3.pipeline.filter.*;
 import com.hackoeur.jglm.*;
 import javafx.animation.AnimationTimer;
 import javafx.scene.paint.Color;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.xml.transform.Source;
 
@@ -14,49 +16,59 @@ import javax.xml.transform.Source;
 public class PushPipelineFactory {
     public static AnimationTimer createPipeline(PipelineData pd) {
         // TODO: push from the source (model)
-
-        // TODO: improve connecting filters, add pipes...
-
         PushFilter sourceModel = new ModelSource();
 
+        // TODO: improve connecting filters, add pipes...
+        PushFilter modelViewFilter = new ModelViewFilter(pd.getViewTransform());
+        PushFilter backfaceCullingFilter = new BackfaceCullingFilter();
+        DepthSortingFilter depthSortingFilter = new DepthSortingFilter();
         PushFilter rotFilter = new RotationFilter();
         PushFilter scaleFilter = new ScaleFilter();
         PushFilter translationFilter = new TranslationFilter();
+        
+        // TODO 4. add coloring (space unimportant)
+        PushFilter lightingFilter = null;
+        if (pd.isPerformLighting()) {
+            // TODO 4a. perform lighting in VIEW SPACE
+            lightingFilter = new LightingFilter(null, pd.getLightPos());
+        }
+        
+        // TODO 5. perform projection transformation
+        PushFilter projectionFilter = new ProjectionFilter(null, pd.getProjTransform());
+        
+        // TODO 6. perform perspective division to screen coordinates
+        PushFilter screenSpaceFilter = new ScreenSpaceFilter(null, pd.getViewportTransform());
+        
+        // TODO 7. feed into the sink (renderer)
         PushFilter renderer = new Renderer(pd.getGraphicsContext(), pd.getModelColor());
 
-        sourceModel.setSuccessor(rotFilter);
+        // Connect the pipeline
+        // TODO 1. perform model-view transformation from model to VIEW SPACE coordinates
+        sourceModel.setSuccessor(modelViewFilter);
+        
+        // TODO 2. perform backface culling in VIEW SPACE
+        modelViewFilter.setSuccessor(backfaceCullingFilter);
+        
+        // TODO 3. perform depth sorting in VIEW SPACE
+        backfaceCullingFilter.setSuccessor(depthSortingFilter);
+        depthSortingFilter.setSuccessor(rotFilter);
         rotFilter.setSuccessor(scaleFilter);
         scaleFilter.setSuccessor(translationFilter);
-        translationFilter.setSuccessor(renderer);
-
-        // TODO 1. perform model-view transformation from model to VIEW SPACE coordinates
-
-        // TODO 2. perform backface culling in VIEW SPACE
-
-        // TODO 3. perform depth sorting in VIEW SPACE
-
-        // TODO 4. add coloring (space unimportant)
-
-        // lighting can be switched on/off
+        
         if (pd.isPerformLighting()) {
-            // 4a. TODO perform lighting in VIEW SPACE
-            
-            // 5. TODO perform projection transformation on VIEW SPACE coordinates
+            translationFilter.setSuccessor(lightingFilter);
+            lightingFilter.setSuccessor(projectionFilter);
         } else {
-            // 5. TODO perform projection transformation
+            translationFilter.setSuccessor(projectionFilter);
         }
-
-        // TODO 6. perform perspective division to screen coordinates
-
-        // TODO 7. feed into the sink (renderer)
+        
+        projectionFilter.setSuccessor(screenSpaceFilter);
+        screenSpaceFilter.setSuccessor(renderer);
 
         // returning an animation renderer which handles clearing of the
         // viewport and computation of the praction
         return new AnimationRenderer(pd) {
-            // TODO rotation variable goes in here
-
-            private int counter = 0;
-            private double startPos = Math.random()*1000;
+            private float totalRotation = 0.0f;
 
             /** This method is called for every frame from the JavaFX Animation
              * system (using an AnimationTimer, see AnimationRenderer). 
