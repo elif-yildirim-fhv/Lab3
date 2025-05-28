@@ -54,9 +54,11 @@ public class PushPipelineFactory {
         // viewport and computation of the praction
         return new AnimationRenderer(pd) {
             // TODO rotation variable goes in here
+            float totalRotation = 0;
 
-            private int counter = 0;
-            private double startPos = Math.random()*1000;
+            // Test funktion
+            // private int counter = 0;
+            // private double startPos = Math.random()*1000;
 
             /** This method is called for every frame from the JavaFX Animation
              * system (using an AnimationTimer, see AnimationRenderer). 
@@ -66,23 +68,29 @@ public class PushPipelineFactory {
             @Override
             protected void render(float fraction, Model model) {
 
-                pd.getGraphicsContext().setStroke(Color.WHITE);
-                pd.getGraphicsContext().strokeLine(startPos+counter,startPos+ counter,startPos+counter+100,startPos+counter+100);
-                counter++;
+               // Test funktion
+               // pd.getGraphicsContext().setStroke(Color.WHITE);
+               // pd.getGraphicsContext().strokeLine(startPos+counter,startPos+ counter,startPos+counter+100,startPos+counter+100);
+               // counter++;
 
 
                 // TODO: use generic parameters for passing objects
-                ((ModelSource)sourceModel).run(model);
+
 
                 // TODO compute rotation in radians
+                 totalRotation += fraction;
+                 double rad = totalRotation % (2 * Math.PI);
 
                 // TODO create new model rotation matrix using pd.modelRotAxis
+                var rotationMatrix = Matrices.rotate((float) rad, pd.getModelRotAxis());
 
                 // TODO compute updated model-view tranformation
+                pushModelViewTransformation.updateRotationMatrix(rotationMatrix);
 
                 // TODO update model-view filter
 
                 // TODO trigger rendering of the pipeline
+                ((ModelSource)sourceModel).run(model);
 
             }
         };
