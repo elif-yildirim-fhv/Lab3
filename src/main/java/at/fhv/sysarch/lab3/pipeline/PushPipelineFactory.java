@@ -3,67 +3,50 @@ package at.fhv.sysarch.lab3.pipeline;
 import at.fhv.sysarch.lab3.animation.AnimationRenderer;
 import at.fhv.sysarch.lab3.obj.Face;
 import at.fhv.sysarch.lab3.obj.Model;
-import at.fhv.sysarch.lab3.pipeline.filter.*;
-import com.hackoeur.jglm.*;
+import at.fhv.sysarch.lab3.pipeline.data.Pair;
+import at.fhv.sysarch.lab3.pipeline.push.PushPipe;
+import at.fhv.sysarch.lab3.pipeline.push.PushSource;
+import at.fhv.sysarch.lab3.pipeline.push.filter.*;
+import com.hackoeur.jglm.Matrices;
 import javafx.animation.AnimationTimer;
 import javafx.scene.paint.Color;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.xml.transform.Source;
-
 
 public class PushPipelineFactory {
+
     public static AnimationTimer createPipeline(PipelineData pd) {
         // TODO: push from the source (model)
-        PushFilter sourceModel = new ModelSource();
+        PushRenderer pushRenderer = new PushRenderer(pd.getGraphicsContext(), pd.getRenderingMode());
 
         // TODO: improve connecting filters, add pipes...
-        PushFilter modelViewFilter = new ModelViewFilter(pd.getViewTransform());
-        PushFilter backfaceCullingFilter = new BackfaceCullingFilter();
-        DepthSortingFilter depthSortingFilter = new DepthSortingFilter();
-        PushFilter rotFilter = new RotationFilter();
-        PushFilter scaleFilter = new ScaleFilter();
-        PushFilter translationFilter = new TranslationFilter();
+        PushPipe<Pair<Face, Color>> toRenderer = new PushPipe<>(pushRenderer);
+        PushScreenSpaceTransformation screenSpaceFilter = new PushScreenSpaceTransformation(toRenderer, pd.getViewportTransform());
+        PushPipe<Pair<Face, Color>> toScreenSpace = new PushPipe<>(screenSpaceFilter);
+        PushProjectionTransformation projectionFilter = new PushProjectionTransformation(toScreenSpace, pd.getProjTransform());
 
-        // TODO 4. add coloring (space unimportant)
-        PushFilter lightingFilter = null;
-        if (pd.isPerformLighting()) {
-            // TODO 4a. perform lighting in VIEW SPACE
-            lightingFilter = new LightingFilter(null, pd.getLightPos());
-        }
-
-        // TODO 5. perform projection transformation
-        PushFilter projectionFilter = new ProjectionFilter(null, pd.getProjTransform());
-
-        // TODO 6. perform perspective division to screen coordinates
-        PushFilter screenSpaceFilter = new ScreenSpaceFilter(null, pd.getViewportTransform());
-
-        // TODO 7. feed into the sink (renderer)
-        PushFilter renderer = new Renderer(pd.getGraphicsContext(), pd.getModelColor());
-
-        // Connect the pipeline
-        // TODO 1. perform model-view transformation from model to VIEW SPACE coordinates
-        sourceModel.setSuccessor(modelViewFilter);
-
-        // TODO 2. perform backface culling in VIEW SPACE
-        modelViewFilter.setSuccessor(backfaceCullingFilter);
-
-        // TODO 3. perform depth sorting in VIEW SPACE
-        backfaceCullingFilter.setSuccessor(depthSortingFilter);
-        depthSortingFilter.setSuccessor(rotFilter);
-        rotFilter.setSuccessor(scaleFilter);
-        scaleFilter.setSuccessor(translationFilter);
+        PushPipe<Pair<Face, Color>> toProjectionOrLighting;
 
         if (pd.isPerformLighting()) {
-            translationFilter.setSuccessor(lightingFilter);
-            lightingFilter.setSuccessor(projectionFilter);
+            PushPipe<Pair<Face, Color>> toProjection = new PushPipe<>(projectionFilter);
+            PushLighting lightingFilter = new PushLighting(toProjection, pd.getLightPos().getUnitVector());
+            toProjectionOrLighting = new PushPipe<>(lightingFilter);
         } else {
-            translationFilter.setSuccessor(projectionFilter);
+            toProjectionOrLighting = new PushPipe<>(projectionFilter);
         }
 
-        projectionFilter.setSuccessor(screenSpaceFilter);
-        screenSpaceFilter.setSuccessor(renderer);
+        PushModelColor modelColorFilter = new PushModelColor(toProjectionOrLighting, pd.getModelColor());
+
+        PushPipe<Face> toModelColor = new PushPipe<>(modelColorFilter);
+        PushDepthSorting depthSortingFilter = new PushDepthSorting(toModelColor);
+
+        PushPipe<Face> toDepthSorting = new PushPipe<>(depthSortingFilter);
+        PushBackfaceCulling backfaceCullingFilter = new PushBackfaceCulling(toDepthSorting);
+
+        PushPipe<Face> toBackfaceCulling = new PushPipe<>(backfaceCullingFilter);
+        PushModelViewTransformation pushModelViewTransformation = new PushModelViewTransformation(toBackfaceCulling, pd.getViewTransform(), pd.getModelTranslation());
+
+        // push from the source (model)
+        PushPipe<Face> toModelView = new PushPipe<>(pushModelViewTransformation);
+        PushSource sourceModel = new PushSource(toModelView);
 
         // returning an animation renderer which handles clearing of the
         // viewport and computation of the praction
@@ -76,9 +59,9 @@ public class PushPipelineFactory {
             // private double startPos = Math.random()*1000;
 
             /** This method is called for every frame from the JavaFX Animation
-             * system (using an AnimationTimer, see AnimationRenderer). 
+             * system (using an AnimationTimer, see AnimationRenderer).
              * @param fraction the time which has passed since the last render call in a fraction of a second
-             * @param model    the model to render 
+             * @param model    the model to render
              */
             @Override
             protected void render(float fraction, Model model) {
@@ -88,13 +71,11 @@ public class PushPipelineFactory {
                // pd.getGraphicsContext().strokeLine(startPos+counter,startPos+ counter,startPos+counter+100,startPos+counter+100);
                // counter++;
 
-
                 // TODO: use generic parameters for passing objects
 
-
                 // TODO compute rotation in radians
-                 totalRotation += fraction;
-                 double rad = totalRotation % (2 * Math.PI);
+                totalRotation += fraction;
+                double rad = totalRotation % (2 * Math.PI);
 
                 // TODO create new model rotation matrix using pd.modelRotAxis
                 var rotationMatrix = Matrices.rotate((float) rad, pd.getModelRotAxis());
@@ -105,8 +86,7 @@ public class PushPipelineFactory {
                 // TODO update model-view filter
 
                 // TODO trigger rendering of the pipeline
-                ((ModelSource)sourceModel).run(model);
-
+                sourceModel.setSourceData(model.getFaces());
             }
         };
     }
