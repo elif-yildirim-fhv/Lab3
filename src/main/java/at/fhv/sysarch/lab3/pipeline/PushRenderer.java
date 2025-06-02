@@ -1,40 +1,46 @@
 package at.fhv.sysarch.lab3.pipeline;
 
-
-import at.fhv.sysarch.lab3.obj.Face;
-
+import at.fhv.sysarch.lab3.pipeline.filter.push.Push;
 import at.fhv.sysarch.lab3.pipeline.data.Pair;
+import at.fhv.sysarch.lab3.obj.Face;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
+import at.fhv.sysarch.lab3.rendering.RenderingMode;
 
-public class PushRenderer implements PushPipe<Pair<Face, Color>> {
+public class PushRenderer extends Push<Pair<Face, Color>, Pair<Face, Color>> {
     private final GraphicsContext gc;
-    private final PipelineData.RenderingMode renderingMode;
+    private final RenderingMode mode;
 
-    public PushRenderer(GraphicsContext gc, PipelineData.RenderingMode renderingMode) {
+    public PushRenderer(GraphicsContext gc, RenderingMode mode) {
+        super(null);
         this.gc = gc;
-        this.renderingMode = renderingMode;
+        this.mode = mode;
     }
 
     @Override
-    public void push(Pair<Face, Color> data) {
-        Face face = data.fst();
-        Color color = data.snd();
+    public void push(Pair<Face, Color> pair) {
+        Face f = pair.fst();
+        Color c = pair.snd();
 
-        gc.setStroke(color);
-        gc.setFill(color);
+        gc.setStroke(c);
+        gc.setFill(c);
 
-        var x = new double[]{face.getV1().getX(), face.getV2().getX(), face.getV3().getX()};
-        var y = new double[]{face.getV1().getY(), face.getV2().getY(), face.getV3().getY()};
-
-        switch (renderingMode) {
+        switch (mode) {
             case POINT -> {
-                for (int i = 0; i < 3; i++) {
-                    gc.strokeLine(x[i], y[i], x[i]+1, y[i]+1);
-                }
+                gc.fillOval(f.getV1().getX(), f.getV1().getY(), 2, 2);
+                gc.fillOval(f.getV2().getX(), f.getV2().getY(), 2, 2);
+                gc.fillOval(f.getV3().getX(), f.getV3().getY(), 2, 2);
             }
-            case WIREFRAME -> gc.strokePolygon(x, y, 3);
-            case FILLED, SHADED -> gc.fillPolygon(x, y, 3);
+            case WIREFRAME -> {
+                gc.strokeLine(f.getV1().getX(), f.getV1().getY(), f.getV2().getX(), f.getV2().getY());
+                gc.strokeLine(f.getV2().getX(), f.getV2().getY(), f.getV3().getX(), f.getV3().getY());
+                gc.strokeLine(f.getV3().getX(), f.getV3().getY(), f.getV1().getX(), f.getV1().getY());
+            }
+            case FILLED -> {
+                double[] x = {f.getV1().getX(), f.getV2().getX(), f.getV3().getX()};
+                double[] y = {f.getV1().getY(), f.getV2().getY(), f.getV3().getY()};
+                gc.fillPolygon(x, y, 3);
+            }
         }
     }
 }

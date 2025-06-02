@@ -4,7 +4,39 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="74101e3e-99d0-445a-bf2c-52bf8dc1e7a2" name="Changes" comment="" />
+    <list default="true" id="74101e3e-99d0-445a-bf2c-52bf8dc1e7a2" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/src/main/java/at/fhv/sysarch/lab3/pipeline/filter/push/IPush.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/at/fhv/sysarch/lab3/pipeline/filter/push/PushSource.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/at/fhv/sysarch/lab3/pipeline/filter/push/filter/PushBackfaceCulling.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/at/fhv/sysarch/lab3/pipeline/filter/push/filter/PushDepthSorting.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/at/fhv/sysarch/lab3/pipeline/filter/push/filter/PushLighting.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/at/fhv/sysarch/lab3/pipeline/filter/push/filter/PushModelColor.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/at/fhv/sysarch/lab3/pipeline/filter/push/filter/PushModelViewTransformation.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/at/fhv/sysarch/lab3/pipeline/filter/push/filter/PushProjectionTransformation.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/at/fhv/sysarch/lab3/pipeline/filter/push/filter/PushScreenSpaceTransformation.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/gradle.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/gradle.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/at/fhv/sysarch/lab3/pipeline/PushPipelineFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/at/fhv/sysarch/lab3/pipeline/PushPipelineFactory.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/at/fhv/sysarch/lab3/pipeline/PushRenderer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/at/fhv/sysarch/lab3/pipeline/PushRenderer.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/at/fhv/sysarch/lab3/pipeline/filter/BackfaceCullingFilter.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/at/fhv/sysarch/lab3/pipeline/filter/DepthSortingFilter.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/at/fhv/sysarch/lab3/pipeline/filter/LightingFilter.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/at/fhv/sysarch/lab3/pipeline/filter/ModelViewFilter.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/at/fhv/sysarch/lab3/pipeline/filter/ProjectionFilter.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/at/fhv/sysarch/lab3/pipeline/filter/ScreenSpaceFilter.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/at/fhv/sysarch/lab3/pipeline/push/IPush.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/at/fhv/sysarch/lab3/pipeline/push/Push.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/at/fhv/sysarch/lab3/pipeline/filter/push/Push.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/at/fhv/sysarch/lab3/pipeline/push/PushPipe.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/at/fhv/sysarch/lab3/pipeline/filter/push/PushPipe.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/at/fhv/sysarch/lab3/pipeline/push/PushSource.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/at/fhv/sysarch/lab3/pipeline/push/filter/PushBackfaceCulling.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/at/fhv/sysarch/lab3/pipeline/push/filter/PushDepthSorting.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/at/fhv/sysarch/lab3/pipeline/push/filter/PushLighting.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/at/fhv/sysarch/lab3/pipeline/push/filter/PushModelColor.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/at/fhv/sysarch/lab3/pipeline/push/filter/PushModelViewTransformation.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/at/fhv/sysarch/lab3/pipeline/push/filter/PushProjectionTransformation.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/at/fhv/sysarch/lab3/pipeline/push/filter/PushScreenSpaceTransformation.java" beforeDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -15,41 +47,62 @@
       <ProjectState />
     </projectState>
   </component>
+  <component name="ExternalProjectsManager">
+    <system id="GRADLE">
+      <state>
+        <projects_view>
+          <tree_state>
+            <expand>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="live_cgpipeline" type="f1a62948:ProjectNode" />
+              </path>
+            </expand>
+            <select />
+          </tree_state>
+        </projects_view>
+      </state>
+    </system>
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
   <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="push" />
+      </map>
+    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "customColor": "",
-  "associatedIndex": 0
-}]]></component>
+  <component name="ProjectColorInfo">{
+  &quot;customColor&quot;: &quot;&quot;,
+  &quot;associatedIndex&quot;: 0
+}</component>
   <component name="ProjectId" id="2xe9sTAksuqqdbB3inAWdQ3voNr" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "git-widget-placeholder": "master",
-    "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "C:/Users/nomdino/Documents/FHV/Systemarchitektur/Lab3/lab3_extended_template",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;Rendering&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Systemarchitekturen/Lab3&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
-  <component name="SharedIndexes">
-    <attachedChunks>
-      <set>
-        <option value="bundled-jdk-9823dce3aa75-fdfe4dae3a2d-intellij.indexing.shared.core-IU-243.22562.218" />
-        <option value="bundled-js-predefined-d6986cc7102b-deb605915726-JavaScript-IU-243.22562.218" />
-      </set>
-    </attachedChunks>
-  </component>
+}</component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
@@ -59,6 +112,8 @@
       <option name="presentableId" value="Default" />
       <updated>1748287878580</updated>
       <workItem from="1748287880010" duration="1297000" />
+      <workItem from="1748428031326" duration="13642000" />
+      <workItem from="1748776268418" duration="399000" />
     </task>
     <servers />
   </component>
