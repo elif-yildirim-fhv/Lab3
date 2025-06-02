@@ -4,8 +4,7 @@ import at.fhv.sysarch.lab3.animation.AnimationRenderer;
 import at.fhv.sysarch.lab3.obj.Face;
 import at.fhv.sysarch.lab3.obj.Model;
 import at.fhv.sysarch.lab3.pipeline.data.Pair;
-import at.fhv.sysarch.lab3.pipeline.filter.push.PushPipe;
-import at.fhv.sysarch.lab3.pipeline.filter.push.PushSource;
+import at.fhv.sysarch.lab3.pipeline.filter.push.*;
 import at.fhv.sysarch.lab3.pipeline.filter.push.filter.*;
 import com.hackoeur.jglm.Matrices;
 import javafx.animation.AnimationTimer;
@@ -14,79 +13,63 @@ import javafx.scene.paint.Color;
 public class PushPipelineFactory {
 
     public static AnimationTimer createPipeline(PipelineData pd) {
-        // TODO: push from the source (model)
-        PushRenderer pushRenderer = new PushRenderer(pd.getGraphicsContext(), pd.getRenderingMode());
+        // 7. Renderer (Sink) - übernimmt das Zeichnen auf dem Canvas
+        PushRenderer renderer = new PushRenderer(pd.getGraphicsContext(), pd.getRenderingMode());
+        PushPipe<Pair<Face, Color>> toRenderer = new PushPipe<>(renderer);
 
-        // TODO: improve connecting filters, add pipes...
-        PushPipe<Pair<Face, Color>> toRenderer = new PushPipe<>(pushRenderer);
+        // 6. Screen Space Transformation (2D-Projektion + Viewport Mapping)
         PushScreenSpaceTransformation screenSpaceFilter = new PushScreenSpaceTransformation(toRenderer, pd.getViewportTransform());
         PushPipe<Pair<Face, Color>> toScreenSpace = new PushPipe<>(screenSpaceFilter);
+
+        // 5. Projection Transformation (3D ➔ Clipping Space)
         PushProjectionTransformation projectionFilter = new PushProjectionTransformation(toScreenSpace, pd.getProjTransform());
+        PushPipe<Pair<Face, Color>> toProjection;
 
-        PushPipe<Pair<Face, Color>> toProjectionOrLighting;
-
+        // 4. Lighting (optional, Flat Shading)
         if (pd.isPerformLighting()) {
-            PushPipe<Pair<Face, Color>> toProjection = new PushPipe<>(projectionFilter);
-            PushLighting lightingFilter = new PushLighting(toProjection, pd.getLightPos().getUnitVector());
-            toProjectionOrLighting = new PushPipe<>(lightingFilter);
+            PushLighting lightingFilter = new PushLighting(projectionFilter, pd.getLightPos().getUnitVector());
+            toProjection = new PushPipe<>(lightingFilter);
         } else {
-            toProjectionOrLighting = new PushPipe<>(projectionFilter);
+            toProjection = new PushPipe<>(projectionFilter);
         }
 
-        PushModelColor modelColorFilter = new PushModelColor(toProjectionOrLighting, pd.getModelColor());
-
+        // 3. Model Color (Farbe des Teapots)
+        PushModelColor modelColorFilter = new PushModelColor(toProjection, pd.getModelColor());
         PushPipe<Face> toModelColor = new PushPipe<>(modelColorFilter);
+
+        // 2. Depth Sorting (Painters Algorithm, sortiert Faces nach Z-Tiefe)
         PushDepthSorting depthSortingFilter = new PushDepthSorting(toModelColor);
-
         PushPipe<Face> toDepthSorting = new PushPipe<>(depthSortingFilter);
+
+        // 1. Backface Culling (versteckt unsichtbare Faces)
         PushBackfaceCulling backfaceCullingFilter = new PushBackfaceCulling(toDepthSorting);
-
         PushPipe<Face> toBackfaceCulling = new PushPipe<>(backfaceCullingFilter);
-        PushModelViewTransformation pushModelViewTransformation = new PushModelViewTransformation(toBackfaceCulling, pd.getViewTransform(), pd.getModelTranslation());
 
-        // push from the source (model)
-        PushPipe<Face> toModelView = new PushPipe<>(pushModelViewTransformation);
-        PushSource sourceModel = new PushSource(toModelView);
+        // 0. Model-View Transformation (Rotation um Y-Achse + Translation)
+        PushModelViewTransformation modelViewFilter = new PushModelViewTransformation(toBackfaceCulling, pd.getViewTransform(), pd.getModelTranslation());
+        PushPipe<Face> toModelView = new PushPipe<>(modelViewFilter);
 
-        // returning an animation renderer which handles clearing of the
-        // viewport and computation of the praction
+        // Source: Modell-Daten als Startpunkt der Pipeline
+        PushSource source = new PushSource(toModelView);
+
+        // Animation Renderer für kontinuierliche Rotation & Animation
         return new AnimationRenderer(pd) {
-            // TODO rotation variable goes in here
-            float totalRotation = 0;
+            float totalRotation = 0; // Rotationswinkel in Radiant
 
-            // Test funktion
-            // private int counter = 0;
-            // private double startPos = Math.random()*1000;
-
-            /** This method is called for every frame from the JavaFX Animation
-             * system (using an AnimationTimer, see AnimationRenderer).
-             * @param fraction the time which has passed since the last render call in a fraction of a second
-             * @param model    the model to render
-             */
             @Override
             protected void render(float fraction, Model model) {
-
-               // Test funktion
-               // pd.getGraphicsContext().setStroke(Color.WHITE);
-               // pd.getGraphicsContext().strokeLine(startPos+counter,startPos+ counter,startPos+counter+100,startPos+counter+100);
-               // counter++;
-
-                // TODO: use generic parameters for passing objects
-
-                // TODO compute rotation in radians
+                // Framerate-unabhängige Rotation
                 totalRotation += fraction;
-                double rad = totalRotation % (2 * Math.PI);
+                double radians = totalRotation % (2 * Math.PI);
 
-                // TODO create new model rotation matrix using pd.modelRotAxis
-                var rotationMatrix = Matrices.rotate((float) rad, pd.getModelRotAxis());
+                // Neue Rotationsmatrix berechnen
+                var rotationMatrix = Matrices.rotate((float) radians, pd.getModelRotAxis());
 
-                // TODO compute updated model-view tranformation
-                pushModelViewTransformation.updateRotationMatrix(rotationMatrix);
+                // ModelView-Filter mit neuer Rotation updaten
+                modelViewFilter.updateRotationMatrix(rotationMatrix);
 
-                // TODO update model-view filter
-
-                // TODO trigger rendering of the pipeline
-                sourceModel.setSourceData(model.getFaces());
+                // Faces an Source pushen (Batchweise Übergabe aller Faces pro Frame)
+                source.setSourceData(model.getFaces());
             }
         };
     }
