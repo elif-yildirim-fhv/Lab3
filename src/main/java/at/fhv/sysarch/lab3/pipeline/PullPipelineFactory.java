@@ -1,8 +1,8 @@
 package at.fhv.sysarch.lab3.pipeline;
 
 import at.fhv.sysarch.lab3.animation.AnimationRenderer;
+import at.fhv.sysarch.lab3.obj.Face;
 import at.fhv.sysarch.lab3.obj.Model;
-import com.hackoeur.jglm.Matrices;
 import at.fhv.sysarch.lab3.pipeline.data.Pair;
 import at.fhv.sysarch.lab3.pipeline.filter.PullModelSource;
 import at.fhv.sysarch.lab3.pipeline.filter.pull.*;
